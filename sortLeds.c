@@ -5,6 +5,7 @@ in eight different groups and in different shapes and will show chase sequences 
 interest.  Began on Dec 1, 2013 by Alex Carmichael (shovelHand)*/
 /*INCLUDES*/
 #include "sortLeds.h"
+
 /*FUNCTIONS*/
 //control the bitwise specifics of sending serial data to the max7219
 void putByte (uint8_t value){
@@ -53,6 +54,7 @@ void randInts(){
 		A[i] = 0;
 		A[i] = rand() / (RAND_MAX / 9);
 	}
+	updateMatrix();
 }
 
 /*
@@ -110,7 +112,7 @@ void updateMatrix(){
 /************************************SORTING ALGORITHMS TO BE SPLIT INTO ANOTHER FILE*****************************/
 
 
-/************************************END OF SORTING ALGORITHMS*****************************************************/
+/***********************************END OF SORTING ALGORITHMS*****************************************************/
 
 
 int main(){
@@ -119,25 +121,20 @@ int main(){
    	
    //our endless loop
    while(1){
-   
+   /*
    _delay_ms(300);
    	randInts();
-	updateMatrix();
-	sortInsertion();
+	sortQuick();
+	_delay_ms(1000);
+	*/
+	randInts();
+//	sortMerge();
 	_delay_ms(1000);
 	
-
-	randInts();
-	updateMatrix();
-	sortSelection();
-	_delay_ms(1000);
-
-	randInts();
-	updateMatrix();
-	sortBubble();
-	_delay_ms(1000);
-		
+//	randInts();
+//	sortMerge();
+//	_delay_ms(1000);
+			
 	}
-
 	return 1;		//the end, which is never reached, so it's kinda arbitrary.
 }

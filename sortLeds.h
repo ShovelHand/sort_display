@@ -27,6 +27,7 @@ uint8_t max7219_reg_displayTest = 0x0f;
 
 uint8_t columns[] = {128,64,32,16,8,4,2,1}; //an array of column indices, easier this way since columns are called by 2^n
 uint8_t A[7];  //the array to be filled with random integers from 0 to 8 and then sorted
+uint8_t temp[sizeof(A)];
 uint8_t matrix[7][8];  // a 2d matrix we use to help update the lighting function
 
 extern uint8_t A[];

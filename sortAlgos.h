@@ -8,11 +8,14 @@
 
 
 //FUNCTION PROTOTYPES**********************
-void blink(int, int);
-void exchange(int, int);
+//void blink(int, int);
+//void exchange(int, int);
 void sortSelection(void);
 void sortBubble(void);
 void sortInsertion(void);
+void sortMerge(void);  
+//void sortQuick(void);
+//void sortHeap(void);
 
 
 #endif 
