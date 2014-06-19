@@ -1,10 +1,11 @@
 #include "sortAlgos.h"
 
+
 extern uint8_t A[7];
-extern uint8_t temp[sizeof(A)];  //new array the same size of A;
+extern uint8_t temp[sizeof(A)];  //new array the same size of A;  used in sorts that may not be included for program size
 extern void updateMatrix(void);
 //make two columns blink off and on again.  can make one column blink by using same index for both arguments
-static void blink(int i, int j){
+void blink(int i, int j){
 	uint8_t temp1 = A[i];
 	uint8_t temp2 = A[j];
 	A[i] = 0;
@@ -18,7 +19,7 @@ static void blink(int i, int j){
 }
 
 //the value at the index of the first argument is exchanged with the index value at the second
-static void exchange(int i, int j){
+ void exchange(int i, int j){
 	uint8_t temp = A[i];
 	A[i] = A[j];
 	A[j] = temp;
@@ -81,7 +82,8 @@ void sortSelection(){
 			_delay_ms(300);
 		}
 }
-/*  this sort makes the program size too big :(
+ // this sort makes the program size too big :(  ** so I put the program on a bigger chip **
+
 void merge(uint8_t numbers[], uint8_t temp[], int left, int mid, int right){
 
   int i, left_end, num_elements, tmp_pos;
@@ -134,6 +136,7 @@ void m_sort(uint8_t numbers[], uint8_t temp[], int left, int right){
   if (right > left)
   {
     mid = (right + left) / 2;
+	blink(mid, mid);
 
     m_sort(numbers, temp, left, mid);
     m_sort(numbers, temp, mid+1, right);
@@ -151,4 +154,4 @@ void sortMerge()
 
 }
  
-*/
+

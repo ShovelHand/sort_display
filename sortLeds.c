@@ -3,12 +3,15 @@
 numbers from 0 to 8.  One 8x8 array is in a simple rectangular pattern while the other is presented
 in eight different groups and in different shapes and will show chase sequences and stuff for visual 
 interest.  Began on Dec 1, 2013 by Alex Carmichael (shovelHand)*/
+/*Dec. 25:  Merry Christmas, you are out of program space.  I made need to port this to a attiny84 which has 8k space*/
+//Feb 13. 2014 just ported it over to an attiny4313 for double the program space.  Now works with merge sort!
 /*INCLUDES*/
 #include "sortLeds.h"
 
 /*FUNCTIONS*/
 //control the bitwise specifics of sending serial data to the max7219
-void putByte (uint8_t value){
+void putByte (uint8_t value, char val){
+	if(val == 1){
 	uint8_t i = 8;
 	uint8_t mask;
 	while(i > 0){
@@ -23,14 +26,39 @@ void putByte (uint8_t value){
 	 sbi(MAX_PORT, clock); //tock
 	 --i;
 	 }
+	 }
+	 else if( val ==2){
+	 uint8_t i = 8;
+	uint8_t mask;
+	while(i > 0){
+		mask = 0x01 << (i -1);
+		cbi (MAX2_PORT, clock2);//...tick
+		if(value & mask){
+	 		sbi(MAX2_PORT, data2);
+	 	}
+	else{
+		cbi(MAX2_PORT, data2);
+		}
+	 sbi(MAX2_PORT, clock2); //tock
+	 --i;
+	 }
+	 }
 }
 
 //update the leds by sending a byte to the max7219
-void maxSingle(uint8_t reg, uint8_t col){
+void maxSingle(uint8_t reg, uint8_t col, char val){
+	if(val ==1){		//if we want to pass data to the first max7219
 	cbi(MAX_PORT, latch);  //set latch low, start new byte
-	putByte(reg);		//which register?
-	putByte(col);		//which column?
+	putByte(reg, 1);		//which register?
+	putByte(col, 1);		//which column?
 	sbi(MAX_PORT, latch);  //latch up, parallel data out
+	}
+	else if(val == 2){
+	cbi(MAX2_PORT, latch2);  //set latch low, start new byte
+	putByte(reg, 2);		//which register?
+	putByte(col, 2);		//which column?
+	sbi(MAX2_PORT, latch2);  //latch up, parallel data out
+	}
 	}
 //	initialize the MAX7219
 void MAXInit(){
@@ -38,14 +66,24 @@ void MAXInit(){
    sbi(MAX_DDR, data);
    sbi(MAX_DDR, clock);//first one 
    sbi(MAX_DDR, latch);
-	
+
+   sbi(MAX_DDR, data2);
+   sbi(MAX_DDR, clock2);  //and the second max7219
+   sbi(MAX_DDR, latch2);	
+
 	//set modes
-  maxSingle(max7219_reg_scanLimit, 0x07);      
-  maxSingle(max7219_reg_decodeMode, 0x00);  // using an led matrix (not digits)
-  maxSingle(max7219_reg_shutdown, 0x01);    // not in shutdown mode
-  maxSingle(max7219_reg_displayTest, 0x00); // no display test.  If this is passed the value 0x01, it forces every led to be on. 
-  maxSingle(max7219_reg_intensity, 0x08 & 0x0f);    // the first 0x0f is the value you can set
+  maxSingle(max7219_reg_scanLimit, 0x07, 1);      
+  maxSingle(max7219_reg_decodeMode, 0x00, 1);  // using an led matrix (not digits)
+  maxSingle(max7219_reg_shutdown, 0x01, 1);    // not in shutdown mode
+  maxSingle(max7219_reg_displayTest, 0x00, 1); // no display test.  If this is passed the value 0x01, it forces every led to be on. 
+  maxSingle(max7219_reg_intensity, 0x08 & 0x0f, 1);    // the first 0x0f is the value you can set
   // range: 0x00 to 0x0f 
+
+  maxSingle(max7219_reg_scanLimit, 0x07, 2);      
+  maxSingle(max7219_reg_decodeMode, 0x00, 2);  
+  maxSingle(max7219_reg_shutdown, 0x01, 2);    
+  maxSingle(max7219_reg_displayTest, 0x00, 2);  
+  maxSingle(max7219_reg_intensity, 0x08 & 0x0f, 2);    
 }
 
 //fill the array to be sorted with random integers
@@ -57,14 +95,6 @@ void randInts(){
 	updateMatrix();
 }
 
-/*
-void clearDisplay(){
-	for (int i = 0; isizeof(A); i++){
-		for(int j= 0; j < 8; j++){
-	 	maxSingle(j, 0);
-		}
-	}
-}*/
 
 /*for every led lit in a row, we have to add its row register value to the to the second argument passed to maxSingle. For  
 example, if we want to light the leds in the first row and first column (whose index value is 128), the third column (32)
@@ -79,7 +109,8 @@ void lightCols(){
 			ledsInRow += columns[i];           //then add the column's register number to the second argument of maxSingle		
 			}
 	
-			maxSingle(j+1 , ledsInRow);		   //leds are lit row by row
+			maxSingle(j+1 , ledsInRow, 1);		   //leds are lit row by row
+			maxSingle(j+1 , ledsInRow, 2);
 		}
 			
 	}//end for loop
@@ -109,31 +140,39 @@ void updateMatrix(){
 	lightCols();
 }
 
-/************************************SORTING ALGORITHMS TO BE SPLIT INTO ANOTHER FILE*****************************/
+/************At the moment, all this does is cycle trhough the various sorting algorithms endlessly
+		At some point, making the sorts represent some real world data would be cool, and I'd like to get a 
+		truer rand sequence of sorts.  Seed off of a noisy pin?****************************/
 
 
-/***********************************END OF SORTING ALGORITHMS*****************************************************/
 
 
 int main(){
    //Initialize MAX system
    MAXInit();
-   	
+
    //our endless loop
-   while(1){
-   /*
+   for(;;){
+   
    _delay_ms(300);
+  
    	randInts();
-	sortQuick();
+	sortInsertion();
 	_delay_ms(1000);
-	*/
+
 	randInts();
-//	sortMerge();
+	sortBubble();
 	_delay_ms(1000);
-	
-//	randInts();
-//	sortMerge();
-//	_delay_ms(1000);
+
+	randInts();
+	sortSelection();
+	_delay_ms(1000);
+
+	randInts();
+	sortMerge();
+	_delay_ms(1000);
+
+
 			
 	}
 	return 1;		//the end, which is never reached, so it's kinda arbitrary.
