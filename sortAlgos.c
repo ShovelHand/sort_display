@@ -91,8 +91,7 @@ void merge(uint8_t numbers[], uint8_t temp[], int left, int mid, int right){
   left_end = mid - 1;
   tmp_pos = left;
   num_elements = right - left + 1;
- 
- 
+
   while ((left <= left_end) && (mid <= right))
   {
     if (numbers[left] <= numbers[mid])
@@ -136,18 +135,23 @@ void m_sort(uint8_t numbers[], uint8_t temp[], int left, int right){
   if (right > left)
   {
     mid = (right + left) / 2;
-	blink(mid, mid);
+	//blink(mid, mid);
 
     m_sort(numbers, temp, left, mid);
     m_sort(numbers, temp, mid+1, right);
- 
+ 	
     merge(numbers, temp, left, mid+1, right);
-		
+	
 
   }
 }
 void sortMerge()
 {
+	int n = 0;
+	while((sizeof(A)/2 -n) >=0 && (sizeof(A)/2 + n) <= sizeof(A)){
+	blink(sizeof(A)/2 -n ,sizeof(A)/2 +n);
+	n +=2;
+	}
   m_sort(A, temp, 0, sizeof(A)-1);
   updateMatrix();
   _delay_ms(500);
