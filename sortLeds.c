@@ -8,6 +8,11 @@ interest.  Began on Dec 1, 2013 by Alex Carmichael (shovelHand)*/
 /*INCLUDES*/
 #include "sortLeds.h"
 
+const uint8_t insertionsrt[] PROGMEM="sort: insertion";
+const uint8_t bubblesrt[] PROGMEM="sort: bubble";
+const uint8_t selectionsrt[] PROGMEM="sort: selection";
+const uint8_t mergesrt[] PROGMEM="sort: merge";
+
 /*FUNCTIONS*/
 //control the bitwise specifics of sending serial data to the max7219
 void putByte (uint8_t value, char val){
@@ -27,22 +32,6 @@ void putByte (uint8_t value, char val){
 	 --i;
 	 }
 	 }
-	 else if( val ==2){
-	 uint8_t i = 8;
-	uint8_t mask;
-	while(i > 0){
-		mask = 0x01 << (i -1);
-		cbi (MAX2_PORT, clock2);//...tick
-		if(value & mask){
-	 		sbi(MAX2_PORT, data2);
-	 	}
-	else{
-		cbi(MAX2_PORT, data2);
-		}
-	 sbi(MAX2_PORT, clock2); //tock
-	 --i;
-	 }
-	 }
 }
 
 //update the leds by sending a byte to the max7219
@@ -53,12 +42,6 @@ void maxSingle(uint8_t reg, uint8_t col, char val){
 	putByte(col, 1);		//which column?
 	sbi(MAX_PORT, latch);  //latch up, parallel data out
 	}
-	else if(val == 2){
-	cbi(MAX2_PORT, latch2);  //set latch low, start new byte
-	putByte(reg, 2);		//which register?
-	putByte(col, 2);		//which column?
-	sbi(MAX2_PORT, latch2);  //latch up, parallel data out
-	}
 	}
 //	initialize the MAX7219
 void MAXInit(){
@@ -67,9 +50,6 @@ void MAXInit(){
    sbi(MAX_DDR, clock);//first one 
    sbi(MAX_DDR, latch);
 
-   sbi(MAX_DDR, data2);
-   sbi(MAX_DDR, clock2);  //and the second max7219
-   sbi(MAX_DDR, latch2);	
 
 	//set modes
   maxSingle(max7219_reg_scanLimit, 0x07, 1);      
@@ -148,8 +128,14 @@ void updateMatrix(){
 
 
 int main(){
+
    //Initialize MAX system
    MAXInit();
+	_delay_ms(100);
+	LCDinit();
+	_delay_ms(100);
+	LCDclr();
+	_delay_ms(100);
 
    //our endless loop
    for(;;){
@@ -157,18 +143,30 @@ int main(){
    _delay_ms(300);
   
    	randInts();
+	LCDclr();
+	CopyStringtoLCD(insertionsrt, 0, 0);
+	_delay_ms(100);
 	sortInsertion();
 	_delay_ms(1000);
 
 	randInts();
+	LCDclr();
+	CopyStringtoLCD(bubblesrt, 0, 0);
+	_delay_ms(100);
 	sortBubble();
 	_delay_ms(1000);
 
 	randInts();
+	LCDclr();
+	CopyStringtoLCD(selectionsrt, 0, 0);
+	_delay_ms(100);
 	sortSelection();
 	_delay_ms(1000);
 
 	randInts();
+	LCDclr();
+	CopyStringtoLCD(mergesrt, 0, 0);
+	_delay_ms(100);
 	sortMerge();
 	_delay_ms(1000);
 

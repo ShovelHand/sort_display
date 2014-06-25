@@ -10,7 +10,6 @@
 #define MAX_PORT   PORTD		//first max7219 driven by PORT D
 #define MAX_DDR    DDRD
 
-#define MAX2_PORT  PORTB
 //some slang 
 #define sbi(a, b) (a) |= (1 << (b));  //my preferred way of setting or clearing one bit at a time
 #define cbi(a, b) (a) &= ~(1 << (b)); 
@@ -19,10 +18,7 @@
 #define data PD0      //Data pin (DS) pin location
 #define clock PD1      //Shift Clock (SH_CP) pin location 
 #define latch PD2      //Store Clock (ST_CP) pin location
-//The second max's pins
-#define data2  PB0	
-#define clock2 PB1
-#define latch2 PB2
+
 /*GLOBAL VARIABLES*/
 //define the registers of the max7219
 const uint8_t max7219_reg_decodeMode  = 0x09;
